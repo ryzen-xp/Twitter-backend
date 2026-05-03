@@ -1,5 +1,5 @@
 use axum::Router;
-use database::connect_db;
+use database::{DbPool, connect_db};
 use dotenv::dotenv;
 use errors::AppError;
 use routers::health::routes as health_routes;
@@ -8,7 +8,7 @@ use std::{env, sync::Arc};
 
 #[derive(Clone)]
 struct AppState {
-    db: sqlx::Pool<sqlx::Postgres>,
+    db: DbPool,
 }
 
 #[tokio::main]
@@ -20,7 +20,7 @@ async fn main() -> Result<(), AppError> {
     let host = env::var("HOST")
         .map_err(|e| AppError::Internal(anyhow::anyhow!("[ENV]: failed to load HOST: {}", e)))?;
 
-    let db_pool = connect_db().await?;
+    let db_pool = connect_db()?;
 
     let shared_state = Arc::new(AppState { db: db_pool });
 

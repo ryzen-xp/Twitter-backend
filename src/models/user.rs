@@ -1,12 +1,11 @@
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(Queryable , Selectable)]
 #[diesel(table_name = crate::schema::users::users)]
-#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct User {
     pub id: Uuid,
     pub username: String,
@@ -23,6 +22,15 @@ pub struct User {
     pub tweet_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = crate::schema::users::users)]
+pub struct NewUser {
+    pub username: String,
+    pub handle: String,
+    pub email: String,
+    pub password_hash: String,
 }
 
 #[derive(Debug, Serialize)]
