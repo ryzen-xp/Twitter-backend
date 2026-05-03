@@ -1,8 +1,11 @@
 use chrono::{DateTime, Utc};
+use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
+#[derive(Queryable , Selectable)]
+#[diesel(table_name = crate::schema::users::users)]
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct User {
     pub id: Uuid,
@@ -77,6 +80,6 @@ pub struct UpdateUserDto {
     pub username :Option<String> , 
     pub bio : Option<String> , 
     pub avatar_url : Option<String> ,
-    pub banner_utl : Option<String> , 
-    pub is_private : Option<String>
+    pub banner_url : Option<String> , 
+    pub is_private : Option<bool>
 }

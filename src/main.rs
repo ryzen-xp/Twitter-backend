@@ -33,7 +33,7 @@ async fn main() -> Result<(), AppError> {
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
-    println!("🌎 Server running at {}", addr);
+    println!("🌎 Server running at http://{}", addr);
 
     axum::serve(listener, app)
         .await
@@ -47,3 +47,4 @@ mod errors;
 mod handlers;
 mod routers;
 mod models;
+mod schema;
