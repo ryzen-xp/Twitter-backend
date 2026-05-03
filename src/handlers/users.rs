@@ -1,16 +1,10 @@
 use std::sync::Arc;
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    Json,
-};
-use diesel::prelude::*;
+use axum::{Json, extract::State, http::StatusCode};
 
-use crate::errors::AppError;
-use crate::models::user::{CreateUserDto, NewUser, User, UserResponse};
-use crate::schema::users::users;
 use crate::AppState;
+use crate::errors::AppError;
+use crate::models::user::{CreateUserDto, User, UserResponse};
 
 // [Post] create_user
 
@@ -34,27 +28,35 @@ pub async fn create_user(
         return Err(AppError::Validation("password is required".to_string()));
     }
 
-    let new_user = NewUser {
-        username: user.username.trim().to_string(),
-        handle: user.handle.trim().to_string(),
-        email: user.email.trim().to_string(),
-        password_hash: user.password.trim().to_string(),
-    };
-
-    let db = state.db.clone();
-    let created_user = tokio::task::spawn_blocking(move || -> Result<User, AppError> {
-        let mut connection = db
-            .get()
-            .map_err(|e| AppError::Database(format!("failed to get Diesel connection: {e}")))?;
-
-        diesel::insert_into(users::table)
-            .values(&new_user)
-            .returning(User::as_returning())
-            .get_result(&mut connection)
-            .map_err(|e| AppError::Database(format!("failed to insert user: {e}")))
-    })
+    let created_user = sqlx::query_as::<_, User>(
+        r#"
+        INSERT INTO users (username, handle, email, password_hash)
+        VALUES ($1, $2, $3, $4)
+        RETURNING
+            id,
+            username,
+            handle,
+            email,
+            password_hash,
+            bio,
+            avatar_url,
+            banner_url,
+            is_verified,
+            is_private,
+            follower_count,
+            following_count,
+            tweet_count,
+            created_at,
+            updated_at
+        "#,
+    )
+    .bind(user.username.trim())
+    .bind(user.handle.trim())
+    .bind(user.email.trim())
+    .bind(user.password.trim())
+    .fetch_one(&state.db)
     .await
-    .map_err(|e| AppError::Internal(anyhow::anyhow!("user insert task failed: {e}")))??;
+    .map_err(|e| AppError::Database(format!("failed to insert user: {e}")))?;
 
     Ok((StatusCode::CREATED, Json(created_user.into())))
 }

@@ -1,11 +1,9 @@
 use chrono::{DateTime, Utc};
-use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 use uuid::Uuid;
 
-#[derive(Queryable , Selectable)]
-#[diesel(table_name = crate::schema::users::users)]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct User {
     pub id: Uuid,
     pub username: String,
@@ -22,15 +20,6 @@ pub struct User {
     pub tweet_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = crate::schema::users::users)]
-pub struct NewUser {
-    pub username: String,
-    pub handle: String,
-    pub email: String,
-    pub password_hash: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -72,22 +61,20 @@ impl From<User> for UserResponse {
     }
 }
 
+//  DTO's of Users
 
-//  DTO's of Users 
-
-#[derive(Debug , Deserialize)]
-pub struct  CreateUserDto {
-    pub username : String , 
-    pub  handle : String , 
-    pub email : String , 
-    pub password : String 
+#[derive(Debug, Deserialize)]
+pub struct CreateUserDto {
+    pub username: String,
+    pub handle: String,
+    pub email: String,
+    pub password: String,
 }
 
-
 pub struct UpdateUserDto {
-    pub username :Option<String> , 
-    pub bio : Option<String> , 
-    pub avatar_url : Option<String> ,
-    pub banner_url : Option<String> , 
-    pub is_private : Option<bool>
+    pub username: Option<String>,
+    pub bio: Option<String>,
+    pub avatar_url: Option<String>,
+    pub banner_url: Option<String>,
+    pub is_private: Option<bool>,
 }

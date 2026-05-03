@@ -20,13 +20,14 @@ async fn main() -> Result<(), AppError> {
     let host = env::var("HOST")
         .map_err(|e| AppError::Internal(anyhow::anyhow!("[ENV]: failed to load HOST: {}", e)))?;
 
-    let db_pool = connect_db()?;
+    let db_pool = connect_db().await?;
 
     let shared_state = Arc::new(AppState { db: db_pool });
 
     let api_routes = user_routes().merge(health_routes());
-    let app = Router::new().nest("/api", api_routes).with_state(shared_state);
-
+    let app = Router::new()
+        .nest("/api", api_routes)
+        .with_state(shared_state);
 
     let addr = format!("{}:{}", host, port);
     let listener = tokio::net::TcpListener::bind(&addr)
@@ -42,9 +43,10 @@ async fn main() -> Result<(), AppError> {
     Ok(())
 }
 
+//  Imports  of modules
 mod database;
 mod errors;
 mod handlers;
-mod routers;
+mod middlewares;
 mod models;
-mod schema;
+mod routers;

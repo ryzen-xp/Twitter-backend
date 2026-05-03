@@ -15,6 +15,4 @@ thiserror = "2.0.18"
 tokio = {version ="1.52.1" , features = ["full"]}
 tracing = "0.1.44"
 uuid = {version = "1.23.1" , features = ["serde" , "v4"]}
-diesel = { version = "2.2.0", features = ["postgres", "chrono", "uuid", "r2d2"] }
-pq-sys = { version = "0.7.5", features = ["bundled_without_openssl"] }
      
