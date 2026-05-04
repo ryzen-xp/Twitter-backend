@@ -10,7 +10,7 @@ pub async fn get_health_status(State(state): State<Arc<AppState>>) -> (StatusCod
         Ok(_) => (StatusCode::OK, String::from("Database is Healthy !!")),
         Err(_) => (
             StatusCode::SERVICE_UNAVAILABLE,
-            String::from("Database blast, check it ASAP !!!"),
+            String::from("Database blast 🔥, check it ASAP !!!"),
         ),
     }
 }

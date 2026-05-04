@@ -1,5 +1,5 @@
 use axum::Router;
-use database::{DbPool, connect_db};
+use database::{DbPool, connect_db, initialize_database};
 use dotenv::dotenv;
 use errors::AppError;
 use routers::health::routes as health_routes;
@@ -21,6 +21,7 @@ async fn main() -> Result<(), AppError> {
         .map_err(|e| AppError::Internal(anyhow::anyhow!("[ENV]: failed to load HOST: {}", e)))?;
 
     let db_pool = connect_db().await?;
+    initialize_database(&db_pool).await?;
 
     let shared_state = Arc::new(AppState { db: db_pool });
 

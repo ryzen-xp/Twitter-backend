@@ -5,6 +5,7 @@ use std::env;
 use crate::errors::AppError;
 
 pub type DbPool = Pool<Postgres>;
+static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./src/migrations");
 
 pub async fn connect_db() -> Result<DbPool, AppError> {
     let db_url = env::var("DB_URL")
@@ -19,4 +20,15 @@ pub async fn connect_db() -> Result<DbPool, AppError> {
     println!("🛢️ Database Connected!");
 
     Ok(pool)
+}
+
+pub async fn initialize_database(pool: &DbPool) -> Result<(), AppError> {
+    MIGRATOR
+        .run(pool)
+        .await
+        .map_err(|e| AppError::Database(format!("failed to run database migrations: {e}")))?;
+
+    println!("📦 Database migrations are up to date!");
+
+    Ok(())
 }
